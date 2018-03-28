@@ -1,0 +1,8 @@
+﻿@model System.Linq.IQueryable<SportsStore.Models.Product>
+
+<ul>
+@foreach (var p in Model)
+{
+    <li>@p.Name - @p.Price</li>
+}
+</ul>
