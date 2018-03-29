@@ -1,8 +1,12 @@
-﻿@model System.Linq.IQueryable<SportsStore.Models.Product>
+﻿@model SportsStore.Models.ViewModels.ProductListViewModel
 
-<ul>
-@foreach (var p in Model)
+@foreach (var p in Model.Products)
 {
-    <li>@p.Name - @p.Price</li>
+    <div>
+        <h3>@p.Name</h3>
+        @p.Description
+        <h4>@p.Price.ToString("C")</h4>
+    </div>
 }
-</ul>
+
+<div page-model="@Model.PagingInfo" page-action="Index"></div>
