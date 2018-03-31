@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Microsoft.AspNetCore.Mvc;
 using Moq;
 using SportsStore.Controllers;
 using SportsStore.Models;
@@ -89,6 +90,35 @@ namespace SportsStore.Tests
             Assert.True(result[0].Name == "p1" && result[0].Category == "Cat1");
             Assert.True(result[1].Name == "p2" && result[1].Category == "Cat1");
             Assert.True(result[2].Name == "p3" && result[2].Category == "Cat1");
+        }
+
+        [Fact]
+        public void CanCountPagesForCategory()
+        {
+            Mock<IProductRepository> mock = new Mock<IProductRepository>();
+            mock.Setup(m => m.Products).Returns((new Product[]
+            {
+                new Product {ProductId = 1, Name = "p1", Category = "Cat1"},
+                new Product {ProductId = 2, Name = "p2", Category = "Cat2"},
+                new Product {ProductId = 3, Name = "p3", Category = "Cat1"},
+                new Product {ProductId = 4, Name = "p4", Category = "Cat2"},
+                new Product {ProductId = 5, Name = "p5", Category = "Cat3"}
+            }).AsQueryable<Product>());
+
+            var controller = new ProductController(mock.Object);
+            controller.PageSize = 3;
+
+            Func<ViewResult, ProductListViewModel> GetModel = result => result?.ViewData?.Model as ProductListViewModel;
+
+            int? res1 = GetModel(controller.List("Cat1"))?.PagingInfo.TotalItems;
+            int? res2 = GetModel(controller.List("Cat2"))?.PagingInfo.TotalItems;
+            int? res3 = GetModel(controller.List("Cat3"))?.PagingInfo.TotalItems;
+            int? resAll = GetModel(controller.List(null))?.PagingInfo.TotalItems;
+
+            Assert.Equal(2, res1);
+            Assert.Equal(2, res2);
+            Assert.Equal(1, res3);
+            Assert.Equal(5, resAll);
         }
     }
 }
